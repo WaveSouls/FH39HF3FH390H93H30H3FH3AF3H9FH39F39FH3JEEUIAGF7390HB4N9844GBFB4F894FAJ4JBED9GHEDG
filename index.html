@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phantom Core Launcher</title>
+    <style>
+        /* Global Styles */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #000000; /* Black background */
+            color: #d8bfff; /* Light purple text */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .container {
+            max-width: 800px;
+            padding: 40px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.8); /* Semi-transparent black */
+            border: 2px solid #800080; /* Purple border */
+            border-radius: 15px; /* Slightly rounded */
+            box-shadow: 0 0 20px rgba(128, 0, 128, 0.5); /* Purple glow */
+            animation: fadeIn 1.5s ease-in-out;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Navigation Styles */
+        .nav {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .nav-btn {
+            padding: 10px 20px;
+            font-size: 1em;
+            color: #fff;
+            background: linear-gradient(135deg, #4b0082, #800080); /* Purple gradient */
+            border: 1px solid #800080; /* Purple border */
+            border-radius: 10px; /* Less rounded */
+            text-decoration: none;
+            box-shadow: 0 5px 15px rgba(128, 0, 128, 0.3);
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(128, 0, 128, 0.5);
+        }
+
+        .nav-btn.active {
+            background: linear-gradient(135deg, #800080, #4b0082);
+            box-shadow: 0 5px 15px rgba(128, 0, 128, 0.7);
+        }
+
+        /* Section Styles */
+        .section {
+            display: none;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        /* Title Styles */
+        h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(128, 0, 128, 0.7); /* Glow effect */
+            animation: glowPulse 2s infinite alternate;
+        }
+
+        /* Image Styles with 3D Hover */
+        .photo-container {
+            perspective: 1000px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .photo {
+            max-width: 400px;
+            width: 100%;
+            height: auto;
+            border-radius: 15px;
+            border: 1px solid #800080; /* Purple border */
+            box-shadow: 0 0 15px rgba(128, 0, 128, 0.5);
+            transition: transform 0.1s;
+            transform-style: preserve-3d;
+            display: block;
+            visibility: visible;
+        }
+
+        /* Fallback for broken image */
+        .photo[alt] {
+            font-size: 1em;
+            color: #d8bfff;
+            text-align: center;
+            line-height: 400px; /* Match max-width for visibility */
+        }
+
+        /* Description Styles */
+        p {
+            font-size: 1.2em;
+            line-height: 1.6;
+            margin-bottom: 40px;
+            animation: fadeIn 2s ease-in-out;
+        }
+
+        /* Download Button Styles */
+        .download-btn {
+            display: inline-block;
+            padding: 15px 40px;
+            font-size: 1.5em;
+            color: #fff;
+            background: linear-gradient(135deg, #4b0082, #800080); /* Purple gradient */
+            border: 1px solid #800080; /* Purple border */
+            border-radius: 10px; /* Less rounded */
+            text-decoration: none;
+            box-shadow: 0 5px 15px rgba(128, 0, 128, 0.5), /* Glow shadow */
+                        0 10px 20px rgba(0, 0, 0, 0.3); /* 3D depth */
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-5px) rotateX(10deg); /* 3D hover effect */
+            box-shadow: 0 10px 25px rgba(128, 0, 128, 0.7),
+                        0 15px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .download-btn::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2), transparent);
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .download-btn:hover::before {
+            opacity: 1;
+            animation: shine 1.5s infinite;
+        }
+
+        /* Falling Stars */
+        .star {
+            position: absolute;
+            width: 3px;
+            height: 15px;
+            background: linear-gradient(to bottom, #b300b3, transparent); /* Lighter purple */
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(179, 0, 179, 0.9); /* Brighter glow */
+            animation: fall linear forwards; /* Use forwards to ensure stars don't hang */
+            z-index: 1;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-100vh); opacity: 1; }
+            100% { transform: translateY(100vh); opacity: 0; }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes glowPulse {
+            from { text-shadow: 0 0 5px rgba(128, 0, 128, 0.5); }
+            to { text-shadow: 0 0 15px rgba(128, 0, 128, 0.8); }
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%); }
+            100% { transform: translateX(100%) translateY(100%); }
+        }
+
+        /* Minimalist Footer or Extra Glow */
+        .glow-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(128, 0, 128, 0.1), transparent);
+            z-index: 0;
+            animation: backgroundPulse 5s infinite alternate;
+        }
+
+        @keyframes backgroundPulse {
+            from { opacity: 0.5; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="glow-bg"></div>
+    <div class="container">
+        <div class="nav">
+            <button class="nav-btn active" onclick="showSection('home')">Home</button>
+            <button class="nav-btn" onclick="showSection('download')">Download</button>
+        </div>
+
+        <div id="home" class="section active">
+            <h1>Phantom Core Launcher</h1>
+            <div class="photo-container">
+                <img class="photo" id="photo-home" src="phontom.png" alt="Phantom Core Launcher Image" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+                <div style="display:none;color:#d8bfff;font-size:1em;">Image not found: phontom.png</div>
+            </div>
+            <p>
+                Welcome to the official site for Phantom Core Launcher, the ultimate free cheat tool for Counter-Strike 2 (CS2). 
+                Our site provides easy access to download and information about this powerful launcher. Why is our cheat the best? 
+                It offers unmatched features like advanced aimbot, wallhack, ESP, triggerbot, and anti-recoil, all designed with 
+                top-tier stealth to avoid detections and bans. Completely free, with no hidden costs, it's user-friendly, customizable, 
+                and regularly updated for the latest game patches. Join thousands of satisfied gamers who elevate their play without risks!
+            </p>
+        </div>
+
+        <div id="download" class="section">
+            <h1>Download Phantom Core Launcher</h1>
+            <div class="photo-container">
+                <img class="photo" id="photo-download" src="phontom.png" alt="Phantom Core Launcher Image" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
+                <div style="display:none;color:#d8bfff;font-size:1em;">Image not found: phontom.png</div>
+            </div>
+            <p>
+                Download the latest version of Phantom Core Launcher here. This free tool enhances your CS2 experience with cutting-edge features. 
+                Easy installation, stealthy operation, and powerful cheats at your fingertips. Use responsibly!
+            </p>
+            <a class="download-btn" href="https://github.com/WaveSouls/-g4m40-0-s4k4jg094jgj4-g4mgl-rnmiorsbishh39h3shg903h90h0p4oj-4agr/raw/refs/heads/main/PhantomCore%20Launcher.exe">Download Now</a>
+        </div>
+    </div>
+
+    <script>
+        // Section Toggle
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[onclick="showSection('${sectionId}')"]`).classList.add('active');
+        }
+
+        // 3D Image Rotate on Hover with Bend Effect
+        function add3DEffect(photoId) {
+            const photo = document.getElementById(photoId);
+            const container = photo.parentElement;
+
+            container.addEventListener('mousemove', (e) => {
+                const rect = container.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+
+                const rotateX = (y - centerY) / centerY * 15;
+                const rotateY = (centerX - x) / centerX * 15;
+                const scale = 1 - Math.abs(rotateX / 100) * 0.05;
+
+                photo.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(${scale})`;
+            });
+
+            container.addEventListener('mouseleave', () => {
+                photo.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
+            });
+        }
+
+        add3DEffect('photo-home');
+        add3DEffect('photo-download');
+
+        // Falling Stars
+        function createStar() {
+            const star = document.createElement('div');
+            star.classList.add('star');
+            star.style.left = Math.random() * 100 + 'vw';
+            star.style.animationDuration = Math.random() * 3 + 3 + 's'; // 3-6 seconds
+            star.style.animationDelay = Math.random() * 2 + 's';
+            document.body.appendChild(star);
+
+            // Ensure star is removed after animation to prevent hanging
+            star.addEventListener('animationend', () => {
+                star.remove();
+            });
+        }
+
+        // Create stars at intervals
+        setInterval(createStar, 600); // New star every 0.6 seconds
+    </script>
+</body>
+</html>
